@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-      label 'jenkins-agent-my-app'
+      namespace 'jenkins' // Specify the namespace explicitly
       defaultContainer 'python'
       yaml """
 apiVersion: v1
@@ -12,15 +12,29 @@ metadata:
 spec:
   containers:
     - name: python
-      image: python:3.7
+      image: python:3.11-slim
       command:
         - cat
       tty: true
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "200m"
+          memory: "256Mi"
     - name: jnlp
-      image: jenkins/inbound-agent:latest
+      image: jenkins/inbound-agent:4.11.2-4
       args:
         - \${computer.jnlpmac}
         - \${computer.name}
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
 """
     }
   }
@@ -28,8 +42,10 @@ spec:
     stage('Test python') {
       steps {
         container('python') {
-          sh 'pip install -r requirements.txt'
-          sh 'python test.py'
+          retry(3) {
+            sh 'pip install -r requirements.txt'
+            sh 'python test.py'
+          }
         }
       }
     }
