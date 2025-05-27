@@ -25,14 +25,13 @@ spec:
       tty: true
       resources:
         limits:
-          cpu: "200m" # Réduit pour éviter les problèmes de ressources
+          cpu: "200m"
           memory: "256Mi"
         requests:
           cpu: "100m"
           memory: "128Mi"
     - name: jnlp
       image: jenkins/inbound-agent:4.11.2-4
-      args: ['${computer.jnlpmac}', '${computer.name}']
       resources:
         limits:
           cpu: "200m"
@@ -40,9 +39,9 @@ spec:
         requests:
           cpu: "100m"
           memory: "128Mi"
-      env: # Ajout de variables d'environnement pour la connexion JNLP
+      env:
       - name: JENKINS_URL
-        value: "http://jenkins:8080" # Remplacez par l'URL correcte de Jenkins
+        value: "http://192.168.1.100:32000" # URL de Jenkins mise à jour
 """
     }
   }
