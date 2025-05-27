@@ -31,7 +31,7 @@ spec:
           cpu: "100m"
           memory: "128Mi"
     - name: jnlp
-      image: jenkins/inbound-agent:4.14.3-1 # Version corrigée
+      image: jenkins/inbound-agent:4.13-2 # Version corrigée
       resources:
         limits:
           cpu: "200m"
