@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-      namespace 'jenkins' // Specify the namespace explicitly
+      namespace 'jenkins' // Namespace explicite
       defaultContainer 'python'
       yaml """
 apiVersion: v1
@@ -10,6 +10,13 @@ metadata:
   labels:
     component: ci
 spec:
+  tolerations: # Tolerations pour éviter les problèmes de taints
+  - key: "node.kubernetes.io/not-ready"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node.kubernetes.io/unreachable"
+    operator: "Exists"
+    effect: "NoSchedule"
   containers:
     - name: python
       image: python:3.11-slim
@@ -18,23 +25,24 @@ spec:
       tty: true
       resources:
         limits:
-          cpu: "500m"
-          memory: "512Mi"
-        requests:
-          cpu: "200m"
+          cpu: "200m" # Réduit pour éviter les problèmes de ressources
           memory: "256Mi"
-    - name: jnlp
-      image: jenkins/inbound-agent:4.11.2-4
-      args:
-        - \${computer.jnlpmac}
-        - \${computer.name}
-      resources:
-        limits:
-          cpu: "500m"
-          memory: "512Mi"
         requests:
           cpu: "100m"
           memory: "128Mi"
+    - name: jnlp
+      image: jenkins/inbound-agent:4.11.2-4
+      args: ['${computer.jnlpmac}', '${computer.name}']
+      resources:
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+      env: # Ajout de variables d'environnement pour la connexion JNLP
+      - name: JENKINS_URL
+        value: "http://jenkins:8080" # Remplacez par l'URL correcte de Jenkins
 """
     }
   }
