@@ -8,9 +8,9 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    component: ci
+    app: ci-agent
 spec:
-  tolerations: # Tolerations pour éviter les problèmes de taints
+  tolerations:
   - key: "node.kubernetes.io/not-ready"
     operator: "Exists"
     effect: "NoSchedule"
@@ -19,31 +19,31 @@ spec:
     effect: "NoSchedule"
   containers:
     - name: python
-      image: python:3.11-slim
+      image: python:3.6
       command:
         - cat
       tty: true
       resources:
         limits:
           cpu: "200m"
-          memory: "256Mi"
+          memory: "512Mi"
         requests:
           cpu: "100m"
-          memory: "128Mi"
+          memory: "256Mi"
     - name: jnlp
-      image: jenkins/inbound-agent:latest # Version mise à jour
+      image: jenkins/inbound-agent:4.13-2 # Version stable
       resources:
         limits:
           cpu: "200m"
-          memory: "256Mi"
+          memory: "512Mi"
         requests:
           cpu: "100m"
-          memory: "128Mi"
+          memory: "256Mi"
       env:
       - name: JENKINS_URL
-        value: "http://192.168.1.100:32000" # URL externe via port-forward
+        value: "http://jenkins:8080" # URL interne
       - name: JENKINS_TUNNEL
-        value: "192.168.1.100:50000" # Port JNLP externe
+        value: "jenkins:50000" # Port JNLP interne
 """
     }
   }
