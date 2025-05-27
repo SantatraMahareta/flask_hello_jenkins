@@ -31,7 +31,7 @@ spec:
           cpu: "100m"
           memory: "128Mi"
     - name: jnlp
-      image: jenkins/inbound-agent:4.11.2-4
+      image: jenkins/inbound-agent:3260.vbeb_33b_7b_717 # Version plus récente
       resources:
         limits:
           cpu: "200m"
@@ -41,7 +41,9 @@ spec:
           memory: "128Mi"
       env:
       - name: JENKINS_URL
-        value: "http://192.168.1.100:32000" # URL de Jenkins mise à jour
+        value: "http://192.168.1.100:32000" # URL de Jenkins
+      - name: JENKINS_TUNNEL
+        value: "192.168.1.100:50000" # Port JNLP
 """
     }
   }
