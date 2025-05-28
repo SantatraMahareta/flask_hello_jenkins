@@ -40,9 +40,9 @@ spec:
 """
     }
   }
-  triggers {
-    pollSCM('* * * * *')
-  }
+  // triggers {
+  //   pollSCM('* * * * *')
+  // }
   stages {
     stage('Test Python') {
       steps {
