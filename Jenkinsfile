@@ -18,6 +18,10 @@ spec:
 """
         }
     }
+     triggers {
+ pollSCM('* * * * *')
+ }
+
 
     stages {
         stage('Test python') {

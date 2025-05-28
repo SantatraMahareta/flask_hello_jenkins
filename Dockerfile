@@ -18,7 +18,7 @@ RUN chmod a+x app.py test.py && \
     chown -R flask:flask ./
 
 # Config de l'application
-ENV FLASK_APP app.py
+ENV FLASK_APP=app.py
 
 # Port exposé
 EXPOSE 5000
