@@ -86,6 +86,17 @@ spec:
         }
       }
     }
+    stage('Start Registry') {
+      steps {
+        container('docker') {
+          sh '''
+            if [ -z "$(docker ps -q -f name=registry)" ]; then
+              docker run -d -p 4000:5000 --name registry registry:2
+            fi
+          '''
+        }
+      }
+    }
 
     stage('Deploy') {
       steps {
