@@ -2,63 +2,64 @@ pipeline {
   agent {
     kubernetes {
       label 'jenkins-agent-my-app'
-      yaml """
+      yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
     component: ci
 spec:
-  serviceAccountName: jenkins  # Utilise un service account pour kubectl
+  serviceAccountName: jenkins
   containers:
-    - name: python
-      image: python:3.10.12
-      command:
-        - cat
-      tty: true
-      resources:
-        limits:
-          cpu: "500m"
-          memory: "512Mi"
-        requests:
-          cpu: "200m"
-          memory: "256Mi"
-    - name: docker
-      image: docker:24.0.7
-      command:
-        - cat
-      tty: true
-      volumeMounts:
-        - mountPath: /var/run/docker.sock
-          name: docker-sock
-      resources:
-        limits:
-          cpu: "500m"
-          memory: "512Mi"
-        requests:
-          cpu: "200m"
-          memory: "256Mi"
-    - name: kubectl
-      image: bitnami/kubectl:1.29
-      command:
-        - cat
-      tty: true
-      resources:
-        limits:
-          cpu: "500m"
-          memory: "512Mi"
-        requests:
-          cpu: "200m"
-          memory: "256Mi"
+  - name: python
+    image: python:3.10.12
+    command:
+      - cat
+    tty: true
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+  - name: docker
+    image: docker:24.0.7
+    command:
+      - cat
+    tty: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+  - name: kubectl
+    image: bitnami/kubectl:1.29
+    command:
+      - cat
+    tty: true
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
   volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-"""
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+'''
     }
   }
   triggers {
-    pollSCM('*/5 * * * *')  # Vérifie toutes les 5 minutes
+    // Vérifie le dépôt toutes les 5 minutes
+    pollSCM('*/5 * * * *')
   }
   stages {
     stage('Test Python') {
