@@ -23,10 +23,20 @@ spec:
       volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-sock
+    - name: kubectl
+      image: bitnami/kubectl:latest
+      command:
+        - cat
+      tty: true
   volumes:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
+    - name: kubectl
+      image: lachlanevenson/k8s-kubectl:v1.17.2
+      command:
+        - cat
+      tty: true
 """
     }
   }
@@ -34,11 +44,19 @@ spec:
     pollSCM('* * * * *')
   }
   stages {
-    stage('Test python') {
+    stage('Test Python') {
       steps {
         container('python') {
           sh 'pip install -r requirements.txt'
           sh 'python test.py'
+        }
+      }
+    }
+    stage('Deploy') {
+      steps {
+        container('kubectl') {
+          sh 'kubectl apply -f ./kubernetes/deployment.yaml'
+          sh 'kubectl apply -f ./kubernetes/service.yaml'
         }
       }
     }
