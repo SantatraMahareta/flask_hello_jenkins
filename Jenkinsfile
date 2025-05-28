@@ -21,9 +21,9 @@ spec:
     volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
-  - name: kubectl
-    image: bitnami/kubectl:1.30.0
-    command: ['sh', '-c', 'sleep infinity']
+  - name: tools
+    image: ubuntu:22.04
+    command: ['cat']
     tty: true
   volumes:
   - name: docker-sock
@@ -32,10 +32,6 @@ spec:
 """
     }
   }
-
-  // triggers {
-  //   pollSCM('* * * * *')
-  // }
 
   stages {
     stage('Test python') {
@@ -47,17 +43,17 @@ spec:
       }
     }
 
-    // stage('Start Registry') {
-    //   steps {
-    //     container('docker') {
-    //       sh '''
-    //         if [ -z "$(docker ps -q -f name=registry)" ]; then
-    //           docker run -d -p 4000:5000 --name registry registry:latest
-    //         fi
-    //       '''
-    //     }
-    //   }
-    // }
+    stage('Start Registry') {
+      steps {
+        container('docker') {
+          sh '''
+            if [ -z "$(docker ps -q -f name=registry)" ]; then
+              docker run -d -p 4000:5000 --name registry registry:2
+            fi
+          '''
+        }
+      }
+    }
 
     stage('Build image') {
       steps {
@@ -68,13 +64,48 @@ spec:
       }
     }
 
+    stage('Install kubectl') {
+      steps {
+        container('tools') {
+          sh '''
+            apt-get update -qq
+            apt-get install -y curl
+            curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            mv kubectl /usr/local/bin/
+          '''
+        }
+      }
+    }
+
+    stage('Check files') {
+      steps {
+        container('tools') {
+          sh 'ls -la'
+          sh 'find . -name ".yaml" -o -name ".yml"'
+        }
+      }
+    }
+
     stage('Deploy') {
       steps {
-        container('kubectl') {
-          sh 'which kubectl'
+        container('tools') {
           sh 'kubectl version --client=true'
-          sh 'kubectl apply -f ./kubernetes/deployment.yaml'
-          sh 'kubectl apply -f ./kubernetes/service.yaml'
+          script {
+            try {
+              sh 'kubectl create namespace flask-app || echo "Namespace already exists"'
+              sh 'kubectl apply -f ./kubernetes/deployment.yaml -n flask-app'
+              sh 'kubectl apply -f ./kubernetes/service.yaml -n flask-app'
+              sh 'kubectl get deployments -n flask-app'
+              sh 'kubectl get services -n flask-app'
+            } catch (Exception e) {
+              echo "Trying deployment in default namespace..."
+              sh 'kubectl apply -f ./kubernetes/deployment.yaml'
+              sh 'kubectl apply -f ./kubernetes/service.yaml'
+              sh 'kubectl get deployments'
+              sh 'kubectl get services'
+            }
+          }
         }
       }
     }
