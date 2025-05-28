@@ -8,16 +8,16 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask-hello # flask_hello → flask-hello
+      app: flask-hello 
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: flask-hello # flask_hello → flask-hello
+        app: flask-hello 
     spec:
       containers:
-        - name: flask-hello # flask_hello → flask-hello
+        - name: flask-hello 
           image: localhost:4000/flask_hello:latest
           ports:
             - containerPort: 5000
