@@ -19,7 +19,7 @@ spec:
     effect: "NoSchedule"
   containers:
     - name: python
-      image: python:3.6
+      image: python:3.13.3
       command:
         - cat
       tty: true
