@@ -8,9 +8,13 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello World!\n'
 
-@app.route('/hello/<username>')  # dynamic route
+@app.route('/hello/<username>') 
 def hello_user(username):
     return 'Hello %s!\n' % username
 
+@app.route('/feature/<username>')
+def hello_feature(username):
+    return 'Hello %s!\n' % username
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')  # open for everyone
+    app.run(host='0.0.0.0')
