@@ -1,13 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
- name: pythontest
- labels:
- app: pythontest
+  name: flask_hello
+  labels:
+    app: flask_hello
 spec:
- ports:
- - port: 5000
- nodePort: 31000
- selector:
- app: pythontest
- type: NodePort
+  type: NodePort
+  selector:
+    app: flask_hello
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 31000
