@@ -9,39 +9,56 @@ metadata:
   labels:
     component: ci
 spec:
+  serviceAccountName: jenkins  # Utilise un service account pour kubectl
   containers:
     - name: python
       image: python:3.10.12
       command:
         - cat
       tty: true
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "200m"
+          memory: "256Mi"
     - name: docker
-      image: docker
+      image: docker:24.0.7
       command:
         - cat
       tty: true
       volumeMounts:
         - mountPath: /var/run/docker.sock
           name: docker-sock
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "200m"
+          memory: "256Mi"
     - name: kubectl
-      image: bitnami/kubectl:latest
+      image: bitnami/kubectl:1.29
       command:
         - cat
       tty: true
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "200m"
+          memory: "256Mi"
   volumes:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
-    - name: kubectl
-      image: lachlanevenson/k8s-kubectl:v1.17.2
-      command:
-        - cat
-      tty: true
 """
     }
   }
   triggers {
-    pollSCM('* * * * *')
+    pollSCM('*/5 * * * *')  # Vérifie toutes les 5 minutes
   }
   stages {
     stage('Test Python') {
