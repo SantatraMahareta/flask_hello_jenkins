@@ -67,19 +67,25 @@ spec:
       }
     }
 
-    stage('Install kubectl') {
-      steps {
-        container('tools') {
-          sh '''
-            apt-get update 
-            apt-get install -y curl
-            curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
-            chmod +x kubectl
-            mv kubectl /usr/local/bin/
-          '''
-        }
-      }
+stage('Install kubectl') {
+  steps {
+    container('tools') {
+      sh '''
+        # On tente d'attendre si l'heure est en avance
+        until apt-get update -qq; do
+          echo "L'horloge du conteneur est en avance... Attente de synchronisation"
+          sleep 10
+        done
+
+        apt-get install -y curl
+        curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        mv kubectl /usr/local/bin/
+      '''
     }
+  }
+}
+
 
     stage('Check files') {
       steps {
