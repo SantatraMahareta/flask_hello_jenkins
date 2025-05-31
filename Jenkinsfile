@@ -32,6 +32,9 @@ spec:
 """
     }
   }
+//  triggers {
+//  pollSCM('* * * * *')
+//  }
 
   stages {
     stage('Test python') {
@@ -68,7 +71,6 @@ spec:
       steps {
         container('tools') {
           sh '''
-            apt-get update -qq
             apt-get install -y curl
             curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
             chmod +x kubectl
